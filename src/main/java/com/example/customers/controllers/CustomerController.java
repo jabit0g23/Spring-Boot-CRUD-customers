@@ -1,79 +1,44 @@
 package com.example.customers.controllers;
 
 import com.example.customers.entities.Customers;
+import com.example.customers.services.CustomerServices;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 
 public class CustomerController {
 
-    private  List<Customers> listC = new ArrayList<>();
-
-    public CustomerController(){
-
-        Customers c = new Customers();
-        c.setId(1);
-        c.setName("Javier");
-        c.setLastname("Gonzalez");
-        c.setAddress("asdasdasd");
-        c.setEmail("asdasdasd");
-        listC.add(c);
-
-        Customers c2 = new Customers();
-        c2.setId(2);
-        c2.setName("Javier");
-        c2.setLastname("Gonzalez");
-        c2.setAddress("asdasdasd");
-        c2.setEmail("asdasdasd");
-        listC.add(c2);
-    };
+    @Autowired //hace que la variable CustomerServices se cargue;
+    //Estoy importando la interface, y no CustomerServicesimp, esto hace el codigo un poco más desacoplado
+    //Autowired es similar a un 'Singleton'
+    private CustomerServices services;
 
     @GetMapping("/customer/{id}") //traer un cliente
     public Customers getCustomer(@PathVariable Integer id){
-        for (Customers customer : listC){
-            if (customer.getId() == id){
-                return  customer;
-            }
-        }
-        return null;
+        return services.getCustomer(id);
     }
 
     @GetMapping("/customer") //traer todos los clientes
     public List<Customers> getAllCustomers(){
-        return listC;
+        return services.getAllCustomers();
     }
 
     @DeleteMapping("/customer/{id}") //Eliminar cliente
     public void removeCustomer(@PathVariable Integer id){
-        for (Customers customer : listC) {
-            if (customer.getId() == id) {
-                listC.remove(customer);
-                break;
-            }
-        }
+        services.removeCustomer(id);
     }
 
     @PostMapping("/customer") //Agregar cliente
     public void addCustomer(@RequestBody Customers customer){
-        listC.add(customer);
+        services.addCustomer(customer);
     }
 
     @PutMapping("/customer/{id}") //Modificar cliente
     public void updateCustomer(@PathVariable Integer id, @RequestBody Customers updateCustomer){
-        for (Customers customer : listC) {
-            if (customer.getId() == id) {
-                listC.remove(customer);
-                updateCustomer.setId(id);
-                listC.add(updateCustomer);
-                break;
-            }
-        }
-
+        services.updateCustomer(id, updateCustomer);
     }
 
     //http://localhost:8080/customer/search/?name=javier
@@ -81,24 +46,6 @@ public class CustomerController {
     public List<Customers> searchCustomer(@RequestParam(name = "email" , required = false) String email,
                                           @RequestParam(name = "name", required = false) String name){
 
-        List<Customers> searchResults = new ArrayList<>();
-
-        if (email != null){
-            for (Customers customer : listC) {
-                if (customer.getEmail().contains(email)) {
-                    searchResults.add(customer);
-                }
-            }
-        }
-
-        if (name != null) {
-            for (Customers customer : listC) {
-                if (customer.getName().contains(name)) {
-                    searchResults.add(customer);
-                }
-            }
-        }
-
-        return searchResults;
+        return  services.searchCustomer(email, name);
     }
 }
