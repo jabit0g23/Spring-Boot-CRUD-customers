@@ -41,7 +41,7 @@ public class CustomerController {
         services.updateCustomer(id, updateCustomer);
     }
 
-    //http://localhost:8080/customer/search/?name=javier
+    //http://localhost:8080/customer/search?name=javier
     @GetMapping("/customer/search") //Buscar cliente
     public List<Customers> searchCustomer(@RequestParam(name = "email" , required = false) String email,
                                           @RequestParam(name = "name", required = false) String name){

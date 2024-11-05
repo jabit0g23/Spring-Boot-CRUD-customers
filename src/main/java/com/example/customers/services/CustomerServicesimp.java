@@ -1,94 +1,63 @@
 package com.example.customers.services;
 
 import com.example.customers.entities.Customers;
+import com.example.customers.repository.CustomerRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.annotation.Id;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CustomerServicesimp implements CustomerServices {
 
-    private List<Customers> listC = new ArrayList<>();
-
-    public CustomerServicesimp(){
-
-        Customers c = new Customers();
-        c.setId(1);
-        c.setName("Javier");
-        c.setLastname("Gonzalez");
-        c.setAddress("asdasdasd");
-        c.setEmail("asdasdasd");
-        listC.add(c);
-
-        Customers c2 = new Customers();
-        c2.setId(2);
-        c2.setName("Javier");
-        c2.setLastname("Gonzalez");
-        c2.setAddress("asdasdasd");
-        c2.setEmail("asdasdasd");
-        listC.add(c2);
-    };
+    @Autowired
+    private CustomerRepository repository;
 
     public Customers getCustomer(Integer id){
-        for (Customers customer : listC){
-            if (customer.getId() == id){
-                return  customer;
-            }
+        Optional<Customers> customer = repository.findById(id);
+        if(customer.isPresent()){
+           return customer.get();
         }
         return null;
     }
 
     public List<Customers> getAllCustomers(){
-        return listC;
+        List<Customers> list = new ArrayList<>();
+        Iterable<Customers> customers = repository.findAll();
+        for (Customers customer : customers) {
+            list.add(customer);
+        }
+
+        return list;
     }
 
     public void removeCustomer(Integer id){
-        for (Customers customer : listC) {
-            if (customer.getId() == id) {
-                listC.remove(customer);
-                break;
-            }
-        }
+        repository.deleteById(id);
     }
 
+    /*
+    {
+    "name": "Test",
+    "lastname": "Test",
+    "email": "Test",
+    "address": "Test"
+    }
+    */
+
     public void addCustomer(Customers customer){
-        listC.add(customer);
+        repository.save(customer);
     }
 
     public void updateCustomer(Integer id, Customers updateCustomer){
-        for (Customers customer : listC) {
-            if (customer.getId() == id) {
-                listC.remove(customer);
-                updateCustomer.setId(id);
-                listC.add(updateCustomer);
-                break;
-            }
-        }
-
+        updateCustomer.setId(id);
+        repository.save((updateCustomer));
     }
 
     public List<Customers> searchCustomer(String email, String name){
-
-        List<Customers> searchResults = new ArrayList<>();
-
-        if (email != null){
-            for (Customers customer : listC) {
-                if (customer.getEmail().contains(email)) {
-                    searchResults.add(customer);
-                }
-            }
-        }
-
-        if (name != null) {
-            for (Customers customer : listC) {
-                if (customer.getName().contains(name)) {
-                    searchResults.add(customer);
-                }
-            }
-        }
-
-        return searchResults;
+        return repository.findByEmailOrName(email, name);
     }
 
 }
